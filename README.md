@@ -1,4 +1,4 @@
-Migrating An Acrolinx Reporting Database From MySQL To Postgres With PGLoader
+Migrating an Acrolinx Reporting Database from MySQL to Postgres with PGLoader
 ================================================================================
 
 The [Acrolinx Platform's][acrolinx] [backup/restore mechanism][acrolinx-docs-reporting-backups] for the reporting database is designed to work with _all_ supported database servers. In all directions.
@@ -18,14 +18,14 @@ Use PGLoader only to migrate the _reporting_ database.
 You don't need to migrate the [JReport databases][acrolinx-docs-connect-external-dbs]. 
 Those are ephemeral.
 
-How To
+How to
 --------
-### Install PGLoader And MySQL Client
+### Install PGLoader and MySQL Client
 
 Install PGLoader as described [here][pgloader-github-installation].
 You might also need the [mysql][mysql-dev-docs-getting-started] client.
 
-### Create The PGLoader Configuration
+### Create the PGLoader Configuration
 
 #### From Template
 
@@ -76,7 +76,7 @@ To find the maximum PK in the source database, we added a procedure [max-id-proc
 Add a buffer to the result and use it as parameter `ACROLINX_MYSQL_PG__MAX_SEQ`.
 
 
-### Prepare The Target Database
+### Prepare the Target Database
 
 The Acrolinx Platform needs particular index names in Postgres.
 Those may differ from the MySQL index names.
