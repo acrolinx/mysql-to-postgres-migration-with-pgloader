@@ -1,4 +1,4 @@
-Migrating an Acrolinx Reporting Database from MySQL to Postgres with PGLoader
+Migrating a Reporting Database from MySQL to Postgres with PGLoader
 ================================================================================
 
 The [Acrolinx Platform's][acrolinx] [backup/restore mechanism][acrolinx-docs-reporting-backups] for the reporting database is designed to work with _all_ supported database servers. In all directions.
@@ -18,11 +18,11 @@ Use PGLoader only to migrate the _reporting_ database.
 You don't need to migrate the [JReport databases][acrolinx-docs-connect-external-dbs]. 
 Those are ephemeral.
 
-How to
+How To
 --------
 ### Install PGLoader and MySQL Client
 
-Install PGLoader as described [here][pgloader-github-installation].
+Install the PGLoader as described [here][pgloader-github-installation].
 You might also need the [mysql][mysql-dev-docs-getting-started] client.
 
 ### Create the PGLoader Configuration
@@ -100,8 +100,8 @@ Here's the full procedure:
 * Install PGLoader and the MySQL client.
 * Clone this repository:
 * CD into the root folder.
-* Find out highest MySQL PK as described above.
-* Generate the configuration from template as described above.
+* Find out the highest MySQL PK as described above.
+* Generate the configuration from the template as described above.
 * Run `pgloader -v cfg.load`.
 
 ### Disclaimer
@@ -117,8 +117,8 @@ Links
 ------
 * [Acrolinx]: Official Acrolinx website.
 * [Connect to External Analytics Databases][acrolinx-docs-connect-external-dbs]: Info about the external databases needed by the Acrolinx Platform.
-* [Analytics and Reporting Database Backups][acrolinx-docs-reporting-backups]: How to back up and restore an Acrolinx reporting database with the Acrolinx Platform tools.
-* [Managing Terminology Database Backups][acrolinx-docs-terminology-backups]: How to back up and restore the Acrolinx Terminology database.
+* [Analytics and Reporting Database Backups][acrolinx-docs-reporting-backups]: How to back up and restore a reporting database with the Acrolinx Platform tools.
+* [Managing Terminology Database Backups][acrolinx-docs-terminology-backups]: How to back up and restore the terminology database.
 * [Product Sunset Policy][acrolinx-docs-sunset-policy]: Acrolinx product sunset policy specifying the demise of MySQL support.
 * [Custom Dashboards][acrolinx-docs-custom-analytics-dashboards]: How to create custom analytics reports for the Acrolinx Platform.
 * [PGLoader on GitHub][pgloader-github]: PGLoader repository on GitHub.

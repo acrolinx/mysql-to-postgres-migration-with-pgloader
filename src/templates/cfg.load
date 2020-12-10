@@ -1,0 +1,19 @@
+LOAD DATABASE
+	FROM mysql://{{ACROLINX_MYSQL_PG__SRC_USER}}:{{ACROLINX_MYSQL_PG__SRC_PW}}@{{ACROLINX_MYSQL_PG__SRC_HOST}}:{{ACROLINX_MYSQL_PG__SRC_PORT}}/{{ACROLINX_MYSQL_PG__SRC_DB}}
+	INTO postgresql://{{ACROLINX_MYSQL_PG__TARGET_USER}}:{{ACROLINX_MYSQL_PG__TARGET_PW}}@{{ACROLINX_MYSQL_PG__TARGET_HOST}}:{{ACROLINX_MYSQL_PG__TARGET_PORT}}/{{ACROLINX_MYSQL_PG__TARGET_DB}}
+    WITH create no tables, preserve index names, reset no sequences, truncate
+
+    SET PostgreSQL PARAMETERS
+          maintenance_work_mem to '{{ACROLINX_MYSQL_PG__PG_WORK_MEM}}',
+          work_mem to '{{ACROLINX_MYSQL_PG__PG_WORK_MEM}}',
+          search_path to 'public'
+
+      SET MySQL PARAMETERS
+          net_read_timeout  = '{{ACROLINX_MYSQL_PG__MYSQL_TIMEOUT}}',
+          net_write_timeout = '{{ACROLINX_MYSQL_PG__MYSQL_TIMEOUT}}'
+
+	alter schema '{{ACROLINX_MYSQL_PG__SRC_DB}}' rename to 'public'
+
+    AFTER LOAD DO
+       $$ ALTER SEQUENCE seq_gen_sequence RESTART WITH {{ACROLINX_MYSQL_PG__MAX_SEQ}}; $$,
+       $$ update sequence set seq_count = {{ACROLINX_MYSQL_PG__MAX_SEQ}}; $$;
