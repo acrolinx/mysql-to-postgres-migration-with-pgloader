@@ -87,6 +87,7 @@ To do so, perform the following steps:
 * Start a Core Platform with the same version as with the source database against the target database. 
 * Wait a few seconds.
 * Stop the server again when seeing this in the `coreserver.log`: `Reporting database version OK!` 
+* Take a schema dump of the target database with `pg_dump` (human readable format). For later sanity checking.
 
 ### Migrate
 
@@ -103,11 +104,60 @@ Here's the full procedure:
 * Find out the highest MySQL PK as described above.
 * Generate the configuration from the template as described above.
 * Run `pgloader -v cfg.load`.
+  * Either set a log file: `pgloader -v cfg.load -L <logfile>`
+  * Or capture the [default log][pgloader-docs-cmdline-options]: `/tmp/pgloader/pgloader.log`
+
+### Sanity Checking
+
+To be on the safe side, do a few sanity checks.
+
+#### Logs
+
+Anything suspicious in the logs? Errors? Warnings?
+
+#### Compare Target Schema Before/After
+During the migration the PGLoader drops and restores constraints and indexes. So, double-check if the target schema is still intact:
+* Take another schema dump of the target database with `pg_dump` (human readable format).
+* Compare it to the dump you took earlier.
+  * Either with a simple `diff`.
+  * Or with [PostgresCompare][postgres-compare].
+  * Or [Liquibase][liquibase-diff]...
+* They should be essentially identical.
+
+#### Count Records
+
+First, check the PGLoader summary columns "read" and "imported". Do the numbers match?
+
+Compare the number of records in the databases. 
+
+Count per table in MySQL:
+```sql
+SELECT SUM(TABLE_ROWS)
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = '{your_db}';
+```
+(Thanks to [stackoverflow][stackoverflow-count-records-per-table-mysql].)
+
+Count per table in Postgres:
+```sql
+SELECT schemaname,relname,n_live_tup 
+  FROM pg_stat_user_tables 
+  ORDER BY n_live_tup DESC;
+```
+(Thanks to [stackoverflow][stackoverflow-count-records-per-table-postgres].)
+
+Do the numbers make sense?
+
+#### Sequence
+
+Was the sequence updated correctly in the target database?
+```sql
+select nextVal('seq_gen_sequence')
+```
 
 ### Disclaimer
 
-The migration steps above represent the first migration path we could get to work.
-Complexity was added as we were facing problems in the evaluation experiments.
+The migration steps above represent the _first_ migration path we got to work.
 We're not perfect.
 We don't claim it can't be simplified.  
 
@@ -119,6 +169,7 @@ Links
 * [Connect to External Analytics Databases][acrolinx-docs-connect-external-dbs]: Info about the external databases needed by the Acrolinx Platform.
 * [Analytics and Reporting Database Backups][acrolinx-docs-reporting-backups]: How to back up and restore a reporting database with the Acrolinx Platform tools.
 * [Managing Terminology Database Backups][acrolinx-docs-terminology-backups]: How to back up and restore the terminology database.
+* [PostgreSQL Client Applications: `pg_dump`][pg_dump]
 * [Product Sunset Policy][acrolinx-docs-sunset-policy]: Acrolinx product sunset policy specifying the demise of MySQL support.
 * [Custom Dashboards][acrolinx-docs-custom-analytics-dashboards]: How to create custom analytics reports for the Acrolinx Platform.
 * [PGLoader on GitHub][pgloader-github]: PGLoader repository on GitHub.
@@ -129,11 +180,17 @@ Links
 [acrolinx-docs-reporting-backups]: https://docs.acrolinx.com/coreplatform/latest/en/acrolinx-on-premise-only/external-databases/analytics-and-reporting-database-backups
 [acrolinx-docs-sunset-policy]: https://docs.acrolinx.com/coreplatform/latest/en/compatibility/product-sunset-policy
 [acrolinx-docs-terminology-backups]: https://docs.acrolinx.com/coreplatform/latest/en/acrolinx-on-premise-only/external-databases/managing-terminology-database-backups
+[liquibase-diff]: https://docs.liquibase.com/commands/community/diff.html
 [mysql-dev-docs-getting-started]: https://dev.mysql.com/doc/mysql-getting-started/en/
 [mysql-docs-system-variables]: https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html
+[pg_dump]: https://www.postgresql.org/docs/10/app-pgdump.html
+[pgloader-docs-cmdline-options]: https://pgloader.readthedocs.io/en/latest/pgloader.html#options
 [pgloader-github]: https://github.com/dimitri/pgloader
 [pgloader-github-installation]: https://github.com/dimitri/pgloader#install
 [pgloader-github-templating]: https://pgloader.readthedocs.io/en/latest/pgloader.html?highlight=ini#templating-with-mustache
 [postgres-docs-resource-consumption]: https://www.postgresql.org/docs/10/runtime-config-resource.html
+[postgres-compare]: https://www.postgrescompare.com/
 [src-cfg-template]: https://github.com/acrolinx/mysql-to-postgres-migration-with-pgloader/blob/main/src/templates/cfg.load
 [src-max-id-procedure]: https://github.com/acrolinx/mysql-to-postgres-migration-with-pgloader/blob/main/src/mysql/max-id-procedure.txt
+[stackoverflow-count-records-per-table-mysql]: https://stackoverflow.com/a/286048
+[stackoverflow-count-records-per-table-postgres]: https://stackoverflow.com/a/2611745
